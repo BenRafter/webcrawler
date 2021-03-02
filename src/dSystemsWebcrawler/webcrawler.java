@@ -28,7 +28,21 @@ public class webcrawler {
 			System.out.println("Title: " + title);
 			
 			Element table = document.select("table.wikitable").first();
-			print(table.text());
+			
+			Elements tableHeads = table.select("th");
+			
+			for(int i = 0; i < tableHeads.size(); i++) {
+				print(tableHeads.get(i).text());
+			}
+			
+			Elements tableRows = table.select("tr");
+			
+			for(int i = 0; i < tableRows.size(); i++) {
+				Element row = tableRows.get(i);
+				Elements cols = row.select("td");
+				
+				
+			}
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
