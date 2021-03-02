@@ -22,17 +22,20 @@ public class webcrawler {
 		try {
 			document = Jsoup.connect(url).timeout(10000).get();
 			String title = document.title();
+			String titleNew = title.substring(0, title.indexOf("-"));
 			
 			Element table = document.select("table.wikitable").first();
 			
 			Element caption = table.select("caption").first();
+			String captionNew = caption.text().replaceAll("\\s", "");
 			
 			Elements tableHeads = table.select("th");
 			
 			Elements tableRows = table.select("tr");
 			
+			String fileName = titleNew + "_" + captionNew + ".txt";
 			try {
-				File retFile = new File("filename.txt");
+				File retFile = new File(fileName);
 				
 				if(retFile.createNewFile()) {
 					System.out.println("File created: " + retFile.getName());
@@ -40,13 +43,32 @@ public class webcrawler {
 					System.out.println("File already exists");
 				}
 				
-				FileWriter writer = new FileWriter("filename.txt");
+				FileWriter writer = new FileWriter(fileName);
+				
+				writer.write("\"URL\"," + url + "\"\n");
+				
+				writer.write("\"Table\", \"" + caption.text() + "\"\n");
+				
+				writer.write("\n");
+				
+				writer.write("\"Headings\",");
+				
+				for(int i = 0; i < tableHeads.size(); i++) {
+					if(i+1 != tableHeads.size()) {
+						writer.write("\""+ tableHeads.get(i).text() + "\",");
+					}else {
+						writer.write("\"" + tableHeads.get(i).text() + "\"");
+					}
+					
+				}
+				writer.write("\n");
 				
 				for(int i = 1; i < tableRows.size(); i++) {
 					Element row = tableRows.get(i);
 					Elements cols = row.select("td");
-					writer.write(cols.get(0).text() + " ");
-					writer.write(cols.get(1).text() + "\n");
+					writer.write("\"\",");
+					writer.write("\"" + cols.get(0).text() + "\",");
+					writer.write("\"" + cols.get(1).text() + "\"\n");
 				}
 				writer.close();
 			}catch(Exception e) {
