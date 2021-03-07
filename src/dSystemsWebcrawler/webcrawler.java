@@ -2,7 +2,7 @@ package dSystemsWebcrawler;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.net.URL;
+import java.util.ArrayList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,6 +12,8 @@ import org.jsoup.select.Elements;
 
 
 public class webcrawler {
+	static ArrayList<String> toVisit = new ArrayList<String>();
+	static ArrayList<String> visited = new ArrayList<String>();
 	
 	public static void print(Object ret) {
 		System.out.println(ret);
@@ -93,13 +95,18 @@ public class webcrawler {
 	
 	public static String[] getLinks(String url, String domain) {
 		try {
+
+			
 			Document doc = Jsoup.connect(url).get();
 			
 			Elements links = doc.select("a[href]");
 			
+			print(domain);
 			for(int i = 2; i < links.size(); i++) {
-				print(links.get(i).attr("href").toString());
-				
+				String temp = links.get(i).attr("href").toString();
+				if(!temp.contains("https")) {
+					toVisit.add(temp);
+				}
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
