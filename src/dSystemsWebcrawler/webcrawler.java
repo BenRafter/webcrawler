@@ -27,73 +27,82 @@ public class webcrawler {
 			String title = document.title();
 			String titleNew = title.substring(0, title.indexOf("-"));
 			
-			Element table = document.select("table.wikitable").first();
-			
-			
-			
-			Element caption = table.select("caption").first();
-			String captionNew = caption.text().replaceAll("\\s", "");
-			
-			Elements tableHeads = table.select("th");
-			
-			if(tableHeads.get(0) != null) {
-				System.out.println("Table does exist");
+			Elements temp = document.select("table.wikitable");
+			if(!(temp.isEmpty())) {
+				print("Table exists");
+				Element table = document.select("table.wikitable").first();
 				
-				Elements tableRows = table.select("tr");
+				Element caption = table.select("caption").first();
+				String captionNew = caption.text().replaceAll("\\s", "");
 				
-				String fileName = titleNew + "_" + captionNew + ".txt";
-				try {
-					File retFile = new File(fileName);
+				Elements tableHeads = table.select("th");
+				
+				if(tableHeads.get(0) != null) {
 					
-					if(retFile.createNewFile()) {
-						System.out.println("File created: " + retFile.getName());
-					}else {
-						System.out.println("File already exists");
-					}
+					Elements tableRows = table.select("tr");
 					
-					FileWriter writer = new FileWriter(fileName);
-					
-					writer.write("\"URL\"," + url + "\"\n");
-					
-					writer.write("\"Table\", \"" + caption.text() + "\"\n");
-					
-					writer.write("\n");
-					
-					writer.write("\"Headings\",");
-					
-					for(int i = 0; i < tableHeads.size(); i++) {
-						if(i+1 != tableHeads.size()) {
-							writer.write("\""+ tableHeads.get(i).text() + "\",");
+					String fileName = titleNew + "_" + captionNew + ".txt";
+					try {
+						File retFile = new File(fileName);
+						
+						if(retFile.createNewFile()) {
+							System.out.println("File created: " + retFile.getName());
 						}else {
-							writer.write("\"" + tableHeads.get(i).text() + "\"");
+							System.out.println("File already exists");
 						}
 						
+						FileWriter writer = new FileWriter(fileName);
+						
+						writer.write("\"URL\"," + url + "\"\n");
+						
+						writer.write("\"Table\", \"" + caption.text() + "\"\n");
+						
+						writer.write("\n");
+						
+						writer.write("\"Headings\",");
+						
+						for(int i = 0; i < tableHeads.size(); i++) {
+							if(i+1 != tableHeads.size()) {
+								writer.write("\""+ tableHeads.get(i).text() + "\",");
+							}else {
+								writer.write("\"" + tableHeads.get(i).text() + "\"");
+							}
+							
+						}
+						writer.write("\n");
+						
+						for(int i = 1; i < tableRows.size(); i++) {
+							Element row = tableRows.get(i);
+							Elements cols = row.select("td");
+							writer.write("\"\",");
+							writer.write("\"" + cols.get(0).text() + "\",");
+							writer.write("\"" + cols.get(1).text() + "\"\n");
+						}
+						writer.close();
+						tableMade = true;
+						return tableMade;
+					}catch(Exception e) {
+						e.printStackTrace();
 					}
-					writer.write("\n");
-					
-					for(int i = 1; i < tableRows.size(); i++) {
-						Element row = tableRows.get(i);
-						Elements cols = row.select("td");
-						writer.write("\"\",");
-						writer.write("\"" + cols.get(0).text() + "\",");
-						writer.write("\"" + cols.get(1).text() + "\"\n");
-					}
-					writer.close();
-					tableMade = true;
-					return tableMade;
-				}catch(Exception e) {
-					e.printStackTrace();
+				}else {
+					print("No table");
 				}
 			}else {
-				print("No table");
+				print("Table does not exist");
 			}
+			
+			
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 		return tableMade;
 	}
 	
-	public static String[] getLinks(String url, String domain) {
+	public static void bfsCrawl(String url, int depth) {
+		
+	}
+	
+	public static String[] getLinks(String url, String domain, ArrayList<String> container) {
 		try {
 
 			
@@ -104,7 +113,7 @@ public class webcrawler {
 
 			for(Element link : links) {
 				if(!(link.toString().contains(".jpg"))) {
-					toVisit.add(domain + link.attr("href").toString());
+					container.add(domain + link.attr("href").toString());
 				}else {
 					print("Found .jpg");
 					print(link.toString());
@@ -132,7 +141,7 @@ public class webcrawler {
 		print("First page done, starting BFS from " + url);
 		print("BFS Depth = " + bfsDepthMax);
 		
-		getLinks(url, editedDomainName);
+		getLinks(url, editedDomainName, toVisit);
 		
 		for(String ele : toVisit) {
 			print(parseTable(ele));
