@@ -99,13 +99,15 @@ public class webcrawler {
 			
 			Document doc = Jsoup.connect(url).get();
 			
-			Elements links = doc.select("a[href]");
+			Elements links = doc.select("a[href^=\"/wiki/\"]");
 			
-			print(domain);
-			for(int i = 2; i < links.size(); i++) {
-				String temp = links.get(i).attr("href").toString();
-				if(!temp.contains("https")) {
-					toVisit.add(temp);
+
+			for(Element link : links) {
+				if(!(link.toString().contains(".jpg"))) {
+					toVisit.add(domain + link.attr("href").toString());
+				}else {
+					print("Found .jpg");
+					print(link.toString());
 				}
 			}
 		}catch(Exception e) {
@@ -119,6 +121,7 @@ public class webcrawler {
 		System.out.println("Running....");
 		String url = args[0];
 		String domainName = args[1];
+		String editedDomainName = domainName.substring(0, 24);
 		int bfsDepthMax = Integer.parseInt(args[2]);
 		
 		print("Starting point: " + url);
@@ -129,8 +132,11 @@ public class webcrawler {
 		print("First page done, starting BFS from " + url);
 		print("BFS Depth = " + bfsDepthMax);
 		
-		getLinks(url, domainName);
+		getLinks(url, editedDomainName);
 		
+		for(String ele : toVisit) {
+			print(parseTable(ele));
+		}
 		print("Done");
 	}
 }
