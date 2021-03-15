@@ -29,7 +29,7 @@ public class webcrawler {
 			
 			Elements temp = document.select("table.wikitable");
 			if(!(temp.isEmpty())) {
-				print("Table exists");
+				//print("Table exists");
 				Element table = document.select("table.wikitable").first();
 				
 				Element caption = table.select("caption").first();
@@ -55,7 +55,10 @@ public class webcrawler {
 						
 						writer.write("\"URL\"," + url + "\"\n");
 						
-						writer.write("\"Table\", \"" + caption.text() + "\"\n");
+						if(caption.hasText()) {
+							writer.write("\"Table\", \"" + caption.text() + "\"\n");
+						}
+						
 						
 						writer.write("\n");
 						
@@ -88,7 +91,7 @@ public class webcrawler {
 					print("No table");
 				}
 			}else {
-				print("Table does not exist");
+				//print("Table does not exist");
 			}
 			
 			
