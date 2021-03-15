@@ -98,9 +98,7 @@ public class webcrawler {
 		return tableMade;
 	}
 	
-	public static void bfsCrawl(String url, int depth) {
-		
-	}
+	
 	
 	public static String[] getLinks(String url, String domain, ArrayList<String> container) {
 		try {
@@ -115,8 +113,8 @@ public class webcrawler {
 				if(!(link.toString().contains(".jpg"))) {
 					container.add(domain + link.attr("href").toString());
 				}else {
-					print("Found .jpg");
-					print(link.toString());
+					//print("Found .jpg");
+					//print(link.toString());
 				}
 			}
 		}catch(Exception e) {
@@ -126,26 +124,34 @@ public class webcrawler {
 		return null;
 	}
 	
+	public static void bfsCrawl(String url, String domain,int maxDepth, int currentDepth) {
+		print("Starting new bfsCrawl");
+		ArrayList<String> target = new ArrayList<String>();
+		getLinks(url, domain, target);
+		print(target.size());
+		for(String ele : target) {
+			parseTable(ele);
+		}
+		if(currentDepth == maxDepth) {
+			return;
+		}else {
+			for(String ele : target) {
+				bfsCrawl(ele, domain, maxDepth, currentDepth + 1);
+			}
+		}
+	}
+	
 	public static void main(String[] args) {
 		System.out.println("Running....");
 		String url = args[0];
 		String domainName = args[1];
 		String editedDomainName = domainName.substring(0, 24);
 		int bfsDepthMax = Integer.parseInt(args[2]);
-		
 		print("Starting point: " + url);
 		print("Domain: " + domainName);
-		
 		print(parseTable(url));
-		
 		print("First page done, starting BFS from " + url);
-		print("BFS Depth = " + bfsDepthMax);
-		
-		getLinks(url, editedDomainName, toVisit);
-		
-		for(String ele : toVisit) {
-			print(parseTable(ele));
-		}
+		bfsCrawl(url, editedDomainName, bfsDepthMax, 0);
 		print("Done");
 	}
 }
